@@ -58,7 +58,9 @@ class ObservableList[T](UserList[T]):
         self._logger: logging.Logger = logging.getLogger(self.__class__.__name__)
         self._lock: threading.RLock = threading.RLock()
 
-        self.__observers: dict[ListModificationType, WeakSet[ObserverNoValueType]] = {}
+        self.__observers: dict[ListModificationType, WeakSet[ObserverNoValueType]] = {
+            ListModificationType.ALL: WeakSet()
+        }
 
     def add_observer(
         self,

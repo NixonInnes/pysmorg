@@ -1,6 +1,68 @@
 # PySmorg
 A smorgasbord of useful python things.
 
+## Iterable
+
+### `t_range`
+` t_range` is a generator function that emulates Python's built-in `range()` function for `datetime` objects. It allows you to iterate over a sequence of datetimes by specifying a start and stop datetime, and either a step `timedelta` or a number of steps (`n_steps`). This functionality is particularly useful for generating datetime sequences for scheduling, time series data generation, and other time-based iterations.
+
+#### Features
+- Flexible Step Definition: Specify the step size directly using a `timedelta`, or define the number of steps (`n_steps`) to automatically calculate the step.
+- Supports Both Directions: Generate sequences that move forward (start < stop) with positive steps or backward (start > stop) with negative steps.
+- Edge Case Handling: Properly handles scenarios where the start and stop datetimes are the same, or when steps do not evenly divide the total duration.
+- Generator Efficiency: Efficiently generates datetimes on-the-fly without storing the entire range in memory.
+- Error Handling: Raises appropriate exceptions for invalid inputs, such as specifying both `step` and `n_steps`, non-positive `n_steps`, or mismatched step directions.
+
+#### Usage Example
+
+```python
+from datetime import datetime, timedelta
+from pysmorg.iterable import t_range
+
+# Example 1: Using step
+start_time = datetime(2024, 1, 1, 0, 0, 0)
+stop_time = datetime(2024, 1, 1, 1, 0, 0)
+step_duration = timedelta(minutes=15)
+
+print("Example 1: Using step")
+for dt in t_range(start_time, stop_time, step=step_duration):
+    print(dt)
+
+# Output:
+# 2024-01-01 00:00:00
+# 2024-01-01 00:15:00
+# 2024-01-01 00:30:00
+# 2024-01-01 00:45:00
+
+# Example 2: Using n_steps
+start_time = datetime(2024, 1, 1, 0, 0, 0)
+stop_time = datetime(2024, 1, 1, 1, 0, 0)
+number_of_steps = 4
+
+for dt in t_range(start_time, stop_time, n_steps=number_of_steps):
+    print(dt)
+
+# Output:
+# 2024-01-01 00:00:00
+# 2024-01-01 00:15:00
+# 2024-01-01 00:30:00
+# 2024-01-01 00:45:00
+
+# Example 3: Generating a reverse range with negative step
+start_time = datetime(2024, 1, 1, 1, 0, 0)
+stop_time = datetime(2024, 1, 1, 0, 0, 0)
+step_duration = timedelta(minutes=-15)
+
+for dt in t_range(start_time, stop_time, step=step_duration):
+    print(dt)
+
+# Output:
+# 2024-01-01 01:00:00
+# 2024-01-01 00:45:00
+# 2024-01-01 00:30:00
+# 2024-01-01 00:15:00
+```
+
 ## Observable
 PySmorg provides an implementation of the Observer pattern through the ObservableObject and ObservableProperty classes. This allows you to create objects with properties that can be observed for changes, enabling reactive programming paradigms.
 
@@ -16,7 +78,7 @@ The ObservableObject class serves as a base class that provides observable prope
 
 #### Usage Example
 ```python
-from pysmorg import ObservableObject, ObservableProperty
+from pysmorg.observable import ObservableObject, ObservableProperty
 
 # Define your observable class
 class MyClass(ObservableObject):
@@ -97,7 +159,7 @@ The `ObservableList` class extends Python's built-in list behavior by allowing o
 
 #### Usage Example
 ```python
-from pysmorg import ObservableList, ListModificationType
+from pysmorg.observable import ObservableList, ListModificationType
 
 # Define observer functions
 def observer_all():
