@@ -2,13 +2,12 @@ from enum import Enum
 import inspect
 import logging
 import threading
-from typing import Any, Callable
+from typing import Any
 from weakref import WeakKeyDictionary
 
-class CallbackSignatureType(Enum):
-    NoValue = 0
-    NewValue = 1
-    NewOldValue = 2
+from .observer import ObserverType, ObserverSignatureType
+
+
 
 class ObservableProperty[T]:
     def __init__(self, default: T = None) -> None:
@@ -38,19 +37,13 @@ class ObservableProperty[T]:
             getattr(instance, f"on_{self.name}_changed")(prev_value, value)
         instance.notify_observers(self.name, prev_value, value)
 
-    
-ObserverNoValueType = Callable[[], None]
-ObserverNewValueType = Callable[[Any], None]
-ObserverNewOldValueType = Callable[[Any, Any], None]
-ObserverType = ObserverNoValueType | ObserverNewValueType | ObserverNewOldValueType
-
 
 class ObservableObject:
     def __init__(self) -> None:
-        self.__observers: dict[str, WeakKeyDictionary[ObserverType, CallbackSignatureType]] = {}
+        self.__observers: dict[str, WeakKeyDictionary[ObserverType, ObserverSignatureType]] = {}
         self.__dependents: dict[str, list[str]] = {}
         self._observables: dict[str, Any] = {}
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger: logging.Logger = logging.getLogger(self.__class__.__name__)
         self._lock: threading.RLock = threading.RLock()
 
     def add_observer(self, key: str, observer: ObserverType) -> None:
@@ -60,11 +53,11 @@ class ObservableObject:
             
             match len(inspect.signature(observer).parameters):
                 case 0:
-                    self.__observers[key][observer] = CallbackSignatureType.NoValue
+                    self.__observers[key][observer] = ObserverSignatureType.NoValue
                 case 1:
-                    self.__observers[key][observer] = CallbackSignatureType.NewValue
+                    self.__observers[key][observer] = ObserverSignatureType.NewValue
                 case 2:
-                    self.__observers[key][observer] = CallbackSignatureType.NewOldValue
+                    self.__observers[key][observer] = ObserverSignatureType.NewOldValue
                 case _:
                     raise ValueError("Observer must accept zero, one or two parameters")
 
@@ -80,11 +73,11 @@ class ObservableObject:
             observers = self.__observers.get(key, {}).copy()
         for observer, callback_type in observers.items():
             match callback_type:
-                case CallbackSignatureType.NoValue:
+                case ObserverSignatureType.NoValue:
                     args = ()
-                case CallbackSignatureType.NewValue:
+                case ObserverSignatureType.NewValue:
                     args = (new_value,)
-                case CallbackSignatureType.NewOldValue:
+                case ObserverSignatureType.NewOldValue:
                     args = (prev_value, new_value)
                 case _:
                     args = ()
