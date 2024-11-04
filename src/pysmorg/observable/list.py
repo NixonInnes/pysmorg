@@ -31,6 +31,25 @@ class ObservableList[T](UserList[T]):
 
         _lock (RLock): Reentrant lock for thread-safe operations.
         _logger (Logger): Logger instance for logging messages.
+
+    Example:
+        ```python
+        ol = ObservableList([1, 2, 3])
+
+        def my_observer():
+            print("List modified!")
+        
+        def my_append_observer():
+            print("Item appended!")
+
+        ol.add_observer(my_observer) # Note: This observer will be notified of all modifications.
+        ol.add_observer(my_append_observer, ListModificationType.APPEND)
+
+        ol.append(4)
+
+        # Output: "List modified!"
+        #         "Item appended!"
+        ```
     """
 
     def __init__(self, initial: list[T] | None = None) -> None:
