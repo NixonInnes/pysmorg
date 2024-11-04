@@ -119,7 +119,11 @@ class ObservableList[T](UserList[T]):
                 observers.extend(self.__observers.get(mod_type, []))
 
         for observer in observers:
-            observer()
+            try:
+                observer()
+            except Exception as e:
+                observer_name = getattr(observer, "__name__", repr(observer))
+                self._logger.error(f"Error in observer for {mod_type}, {observer_name}: {e}")
 
     @override
     def __setitem__(self, i: int, item: T) -> None: # pyright: ignore[reportIncompatibleMethodOverride]

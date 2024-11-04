@@ -84,4 +84,5 @@ class ObservableObject:
             try:
                 _ = observer(*args)
             except Exception as e:
-                self._logger.error(f"Error in observer for '{key}', '{observer.__name__}': {e}")
+                observer_name = getattr(observer, "__name__", repr(observer))
+                self._logger.error(f"Error in observer for '{key}', '{observer_name}': {e}")
