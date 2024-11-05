@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "A smorgasbord of useful python things"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.9.2",
+    "sqlalchemy>=2.0.36",
+]
 
 [build-system]
 requires = ["hatchling"]
